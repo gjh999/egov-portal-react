@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { authApi } from '../api/auth'
-import type { CurrentUser } from '../api/auth'
+import type { CurrentUser, UserSe } from '../api/auth'
 import { setUnauthorizedHandler } from '../api/client'
 
 interface AuthState {
@@ -10,7 +10,7 @@ interface AuthState {
   loading: boolean
   isAuthenticated: boolean
   isAdmin: boolean
-  login: (id: string, password: string) => Promise<void>
+  login: (id: string, password: string, userSe?: UserSe) => Promise<void>
   logout: () => Promise<void>
   /** 서버 상태와 다시 맞춘다 (권한 변경·다른 탭에서 로그아웃 등) */
   refresh: () => Promise<void>
@@ -49,8 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => setUnauthorizedHandler(null)
   }, [])
 
-  const login = useCallback(async (id: string, password: string) => {
-    await authApi.login(id, password)
+  const login = useCallback(async (id: string, password: string, userSe?: UserSe) => {
+    await authApi.login(id, password, userSe)
     // 로그인 응답에는 roles 가 없다 — 권한까지 담긴 정보를 /auth/me 로 다시 받는다
     setUser(await authApi.me())
   }, [])

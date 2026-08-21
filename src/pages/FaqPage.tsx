@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { faqApi } from '../api/portal'
 import { useAsync } from '../hooks/useAsync'
 import { useAuth } from '../auth/AuthContext'
@@ -25,7 +25,9 @@ export function FaqPage() {
 
   const [condition, setCondition] = useState(searchCondition)
   const [keyword, setKeyword] = useState(searchKeyword)
-  const [openId, setOpenId] = useState<string | null>(null)
+  // /faq/:faqId 로 들어오면 그 항목을 펼친 채로 연다 — 메인에서 특정 질문을 누른 경우다.
+  const { faqId } = useParams()
+  const [openId, setOpenId] = useState<string | null>(faqId ?? null)
 
   const { data, loading, error, reload } = useAsync(
     () => faqApi.list({ pageIndex, searchCondition, searchKeyword }),

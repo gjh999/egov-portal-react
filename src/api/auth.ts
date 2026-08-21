@@ -11,6 +11,14 @@ export interface CurrentUser {
   roles: string[]
 }
 
+/**
+ * 사용자 구분.
+ *
+ * 로그인 쿼리가 구분에 따라 **다른 테이블**을 조회한다 — 구분이 맞지 않으면
+ * 아이디·비밀번호가 옳아도 로그인에 실패한다. 그래서 로그인 화면에서 선택하게 한다.
+ */
+export type UserSe = 'USR' | 'GNR' | 'ENT'
+
 export const authApi = {
   /**
    * 로그인. 성공하면 서버가 ACCESS_TOKEN HttpOnly 쿠키를 심는다(응답 본문에 토큰은 없다).
@@ -21,8 +29,8 @@ export const authApi = {
    *
    * 평문이 네트워크에 노출되지 않도록 **운영 배포에는 HTTPS 가 필수**다.
    */
-  async login(id: string, password: string): Promise<CurrentUser> {
-    return api.post<CurrentUser>('/auth/login-jwt', { id, password, userSe: 'USR' })
+  async login(id: string, password: string, userSe: UserSe = 'GNR'): Promise<CurrentUser> {
+    return api.post<CurrentUser>('/auth/login-jwt', { id, password, userSe })
   },
 
   /** 로그아웃 — 서버가 쿠키를 만료시킨다. */

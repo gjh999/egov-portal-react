@@ -97,6 +97,8 @@ export function App() {
 
               {/* 고객지원 */}
               <Route path="faq" element={<FaqPage />} />
+            {/* 메인에서 특정 FAQ 를 눌러 들어오는 경로. 목록을 열고 그 항목을 펼친다. */}
+            <Route path="faq/:faqId" element={<FaqPage />} />
               <Route
                 path="faq/write"
                 element={
@@ -116,7 +118,16 @@ export function App() {
               <Route path="qna" element={<QnaPage />} />
               {/* Q&A 는 비회원도 글을 남길 수 있다 — 로그인 가드를 걸지 않는다 */}
               <Route path="qna/write" element={<QnaFormPage />} />
-              <Route path="survey" element={<SurveyPage />} />
+              {/* 설문 참여는 로그인이 필요하다. 화면에 오류를 띄우는 대신 로그인으로 보내고,
+                로그인하면 원래 보려던 곳으로 되돌아온다. */}
+            <Route
+              path="survey"
+              element={
+                <RequireAuth>
+                  <SurveyPage />
+                </RequireAuth>
+              }
+            />
 
               {/* 약관 — 가입 전에도 열람할 수 있어야 한다 */}
               <Route path="terms" element={<TermsPage kind="stplat" />} />
