@@ -363,7 +363,7 @@ export function BannerAdminPage() {
         {
           header: t('banner.url', '링크'),
           alignStart: true,
-          cell: (row) => (row.bannerUrl ? <span className="small text-muted">{row.bannerUrl}</span> : '-'),
+          cell: (row) => (row.linkUrl ? <span className="small text-muted">{row.linkUrl}</span> : '-'),
         },
         { header: t('banner.order', '순서'), width: '10%', cell: (row) => row.sortOrdr ?? '-' },
         {
@@ -378,7 +378,7 @@ export function BannerAdminPage() {
       ]}
       fields={[
         { name: 'bannerNm', label: t('banner.name', '배너명'), required: true },
-        { name: 'bannerUrl', label: t('banner.url', '링크 URL') },
+        { name: 'linkUrl', label: t('banner.url', '링크 URL') },
         { name: 'bannerDc', label: t('banner.desc', '설명'), type: 'textarea' },
         { name: 'sortOrdr', label: t('banner.order', '정렬순서'), type: 'number' },
         {
@@ -393,7 +393,7 @@ export function BannerAdminPage() {
       ]}
       toFormValues={(row) => ({
         bannerNm: row.bannerNm ?? '',
-        bannerUrl: row.bannerUrl ?? '',
+        linkUrl: row.linkUrl ?? '',
         bannerDc: row.bannerDc ?? '',
         sortOrdr: String(row.sortOrdr ?? ''),
         useAt: row.useAt ?? 'Y',

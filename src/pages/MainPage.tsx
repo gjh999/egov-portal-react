@@ -13,7 +13,8 @@ export function MainPage() {
   if (error) return <ErrorMessage message={error} onRetry={reload} />
 
   const noticeBbsId = data?.noticeBbsId ?? NOTICE_BBS_ID
-  const banners = data?.bannerList ?? []
+  // 이름이 없는 배너는 화면에 빈 배지만 남기므로 거른다.
+  const banners = (data?.bannerList ?? []).filter((banner) => banner.bannerNm?.trim())
   const notices = data?.noticeList ?? []
   const faqs = data?.faqList ?? []
 
@@ -24,10 +25,10 @@ export function MainPage() {
       {banners.length > 0 && (
         <section className="mb-4" aria-label={t('main.banner', '배너')}>
           <ul className="list-unstyled d-flex flex-wrap gap-3 mb-0">
-            {banners.map((banner) => (
-              <li key={banner.bannerId}>
-                {banner.bannerUrl ? (
-                  <a href={banner.bannerUrl} className="krds-btn secondary">
+            {banners.map((banner, index) => (
+              <li key={banner.bannerId || `banner-${index}`}>
+                {banner.linkUrl ? (
+                  <a href={banner.linkUrl} className="krds-btn secondary">
                     {banner.bannerNm}
                   </a>
                 ) : (

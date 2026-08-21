@@ -147,12 +147,22 @@ export interface PrivacyPolicy {
   useAt?: string
 }
 
-/** 배너 */
+/**
+ * 배너.
+ *
+ * 링크 필드는 서버 컬럼명 그대로 linkUrl 이다 — annerUrl 이 아니다.
+ * 이름을 다르게 쓰면 타입은 통과하지만 화면에는 링크 없는 빈 배지만 남는다.
+ */
 export interface Banner {
   bannerId: string
   bannerNm: string
   bannerImage?: string
-  bannerUrl?: string
+  /** 배너 클릭 시 이동할 주소 (서버: LINK_URL) */
+  linkUrl?: string
+  /** 배너 이미지 파일명 (서버: BANNER_IMAGE_FILE) */
+  bannerImageFile?: string
+  /** 배너 종류 — MAIN · POPUP · FOOTER */
+  bannerTy?: string
   bannerDc?: string
   sortOrdr?: number
   useAt?: string
