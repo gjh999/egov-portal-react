@@ -7,9 +7,9 @@
 
 | 저장소 | 역할 | 개발 포트 |
 |---|---|---|
-| [egov-portal-api](https://github.com/gjh999/egov-portal-api) | REST API 백엔드 | 8081 (`/api`) |
-| **egov-portal-react** (이 저장소) | React 19 프론트 | 5175 |
-| [egov-portal-vue](https://github.com/gjh999/egov-portal-vue) | Vue 3 프론트 (짝) | 5176 |
+| [egov-portal-api](https://github.com/gjh999/egov-portal-api) | REST API 백엔드 | 18090 (`/api`) |
+| **egov-portal-react** (이 저장소) | React 19 프론트 | 13000 |
+| [egov-portal-vue](https://github.com/gjh999/egov-portal-vue) | Vue 3 프론트 (짝) | 13001 |
 
 두 프론트는 같은 백엔드·같은 메시지 번들·같은 KRDS 자산을 쓰며 기능이 서로 대등합니다.
 
@@ -18,7 +18,33 @@
 > 동기화 대상과 절차는 [`src/api/CONTRACT.md`](src/api/CONTRACT.md) 를 보세요.
 > 공유 파일: `client.ts` · `types.ts` · `auth.ts` · `portal.ts` (4개)
 
+## 화면
+
+### 메인
+
+![메인](docs/screenshots/01-main.png)
+
+### 게시판
+
+![게시판](docs/screenshots/02-board.png)
+
+### FAQ
+
+![FAQ](docs/screenshots/03-faq.png)
+
+### 로그인
+
+![로그인](docs/screenshots/04-login.png)
+
+### 사이트 소개
+
+![사이트 소개](docs/screenshots/05-info.png)
+
+> 위 화면은 이 저장소를 실제로 기동해 촬영한 것입니다.
+> 같은 시점의 기능 점검 결과(**4 / 4 통과**)는 [docs/VERIFICATION.md](docs/VERIFICATION.md) 에 있습니다.
+
 ---
+
 
 ## 1. 빠른 시작
 
@@ -28,13 +54,13 @@
 
 ```bash
 npm install
-npm run dev     # http://localhost:5175
+npm run dev     # http://localhost:13000
 ```
 
 **백엔드가 먼저 떠 있어야 합니다.** [egov-portal-api](https://github.com/gjh999/egov-portal-api) 를 클론해
-`mvn spring-boot:run` 으로 8081 포트에 띄우세요.
+`mvn spring-boot:run` 으로 18090 포트에 띄우세요.
 
-개발 서버는 `/api` 요청을 `http://localhost:8081` 로 프록시합니다(`vite.config.ts`).
+개발 서버는 `/api` 요청을 `http://localhost:18090` 로 프록시합니다(`vite.config.ts`).
 프록시를 쓰면 브라우저에서 동일 출처로 보여 **쿠키가 SameSite 제약 없이 실립니다.**
 
 백엔드 주소를 바꾸려면 `.env.development` 의 `VITE_API_BASE` 와 `vite.config.ts` 의 프록시 target 을 함께 수정하세요.
@@ -148,12 +174,25 @@ location / {
     try_files $uri $uri/ /index.html;
 }
 location /api/ {
-    proxy_pass http://127.0.0.1:8081;
+    proxy_pass http://127.0.0.1:18090;
     proxy_set_header Host $host;
 }
 ```
 
 프론트와 API 를 **같은 도메인**에 두면(위 설정처럼 `/api` 를 프록시) 쿠키 문제가 생기지 않습니다.
+
+### 컨테이너로 실행
+
+저장소에 `Dockerfile` 과 `k8s/` 매니페스트가 들어 있습니다.
+이미지는 **정적 번들 + nginx** 구성이고, nginx 가 `/api` 를 백엔드로 넘깁니다.
+
+```bash
+docker build -t egov-portal-react:latest .
+docker run --rm -p 13000:8080 -e BACKEND_URL=http://host.docker.internal:18090 egov-portal-react:latest
+```
+
+세 저장소를 한 번에 띄우려면 [egov-portal-api](https://github.com/gjh999/egov-portal-api) 의
+`docker-compose.yml` 을 쓰세요 — 백엔드 1 + 프론트 2 가 함께 뜹니다.
 도메인을 분리한다면 백엔드에서 `JWT_COOKIE_SAMESITE=None` + `JWT_COOKIE_SECURE=true`(HTTPS) +
 CORS 화이트리스트가 **모두** 필요합니다.
 
@@ -162,6 +201,7 @@ CORS 화이트리스트가 **모두** 필요합니다.
 ## 5. 테스트
 
 ```bash
+npm run lint    # ESLint
 npm run test    # Vitest 7건
 ```
 
@@ -220,8 +260,12 @@ src/
 화면 문구의 원본은 **백엔드**([egov-portal-api](https://github.com/gjh999/egov-portal-api))의
 `message-ui_{ko,en}.properties` 입니다. 앱 시작 시 `GET /api/i18n/{lang}` 으로 받아 씁니다.
 
-문구를 이 저장소에 박아 두면 짝 저장소와 갈라지므로, `t('key', '기본값')` 형태로 쓰고
-**실제 문구는 백엔드 메시지 파일에 추가**하세요. 두 번째 인자는 번들을 받지 못했을 때의 대비값입니다.
+문구는 `t('key', '기본값')` 형태로 씁니다. 두 번째 인자는 번들에 키가 없을 때 쓰이는 대비값입니다.
+
+> 화면 문구 키 254 개 중 **251 개(99%)** 가 번들에 등록돼 있어 언어 전환이 실제로 동작합니다.
+> 나머지 2 개는 첨부 최대 개수처럼 **값이 끼어드는 문구**라, 번들로 옮기려면 자리표시자 치환이 필요합니다. 대비값으로 둡니다.
+
+문구를 이 저장소에 박아 두면 짝 저장소와 갈라집니다. **새 문구는 백엔드 메시지 파일에 추가**하세요.
 
 ---
 
